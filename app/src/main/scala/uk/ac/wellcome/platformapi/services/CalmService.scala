@@ -17,6 +17,29 @@ class CalmService @Inject()(
   private def parentAltRefNo(altRefNo: String): String =
     altRefNo.take(altRefNo.lastIndexOf("/"))
 
+  def findSMGRecordByAccessionId(accessionId: Int) = {
+    elasticsearchService.client.execute {
+      search("hackday2/records").query(
+        boolQuery().must(
+          matchQuery("identifier.type", "accession number"),
+          matchQuery("identifier.value", accessionId.toString)
+        )
+      )
+    }.map { _.hits.headOption.map { SMGRecord(_) }}
+  }
+
+  def findSMGRecordByAccessionRange(gte: Int, lte: Int): Future[List[SMGRecord]] = {
+    elasticsearchService.client.execute {
+      search("smg_wellcome/object").query(
+        rangeQuery("identifier.value")
+          .gte(gte)
+          .lte(gte)
+      )
+    }.map { _.hits.map { SMGRecord(_) }.toList }
+  }
+
+//  def findRecordsByAccessionId(accessionId: Int): Future[List[SMGRecord]]
+
   def findParentCollectionByAltRefNo(altRefNo: String): Future[Option[Collection]] =
     findCollectionByAltRefNo(parentAltRefNo(altRefNo))
 

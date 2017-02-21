@@ -2,6 +2,25 @@ package uk.ac.wellcome.platform.api.models
 
 import com.sksamuel.elastic4s.searches.RichSearchHit
 
+case class SMGRecord(
+  title: String,
+  uri: String,
+  imageUri: Option[String]
+)
+case object SMGRecord {
+  def apply(hit: RichSearchHit): SMGRecord = {
+    val data: Map[String, AnyRef] =
+      hit.sourceAsMap.filter(o => o._2 != null)
+
+println(data)
+
+    SMGRecord(
+      title="foo",
+      uri="bar",
+      imageUri=None
+    )
+  }
+}
 
 case class Record(
   altRefNo: String,

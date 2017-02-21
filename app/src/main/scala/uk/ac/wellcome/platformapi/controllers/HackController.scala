@@ -21,12 +21,6 @@ case class AccessionRequest(
   @NotEmpty @QueryParam accessionId: String
 )
 
-case class SMGRecord(
-  title: String,
-  uri: String,
-  imageUri: Option[String]
-)
-
 case class AccessionResponse(
   current: SMGRecord,
   adjacentAccessions: List[SMGRecord]
@@ -40,13 +34,12 @@ class HackController @Inject()(
   val apiBaseUrl = "/api/hack"
 
   get(s"${apiBaseUrl}/record") { request: AccessionRequest =>
-    val current = SMGRecord(
-      "Launcher, Black Arrow (incomplete)",
-      "http://collection.sciencemuseum.org.uk/objects/co40246/black-arrow-r4-launch-vehicle-1971-rockets-satellite-launchers-launch-vehicles",
-      Some("http://smgco-images.s3.amazonaws.com/media/W/P/A/medium_1972_0325__0002_.jpg"))
+    calmService.findSMGRecordByAccessionId(request.accessionId.toInt).map { recordOption =>
+     recordOption
+        .map(response.ok.json)
+	.getOrElse(response.notFound)
+    }
 
-    val record = AccessionResponse(current, List(current,current,current))
 
-    response.ok.json(record)
   }
 }
