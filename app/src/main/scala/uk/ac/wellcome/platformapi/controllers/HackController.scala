@@ -35,6 +35,16 @@ case class AccessionResponse(
   adjacentAccessions: List[SMGRecord]
 )
 
+case class Subject(
+  name: String,
+  uri: String
+)
+
+case class CollectionResponse(
+  collections: List[Collection],
+  subjects: List[Subject]
+)
+
 @Singleton
 class HackController @Inject()(
   calmService: CalmService
@@ -47,7 +57,8 @@ class HackController @Inject()(
       if(collectionList.isEmpty) {
         response.ok.json(Nil)
       } else {
-        response.ok.json(collectionList)
+        val dummySubjects = List(Subject("Cheese", "http://www.example.com"))
+        response.ok.json(CollectionResponse(collectionList,dummySubjects))
       }
     }
   }
