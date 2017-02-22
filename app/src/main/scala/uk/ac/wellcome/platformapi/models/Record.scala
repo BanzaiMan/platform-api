@@ -15,11 +15,20 @@ case object SMGRecord {
 
     val admin = data("admin").asInstanceOf[java.util.HashMap[String, AnyRef]]
     val uid = admin.get("uid").toString
+    val imageBasePath = s"http://smgco-images.s3.amazonaws.com/media/"
+
+    val imageUri =  Try {
+      data("multimedia").asInstanceOf[java.util.ArrayList[AnyRef]]
+        .get(0).asInstanceOf[java.util.HashMap[String, AnyRef]]
+	  .get("processed").asInstanceOf[java.util.HashMap[String, AnyRef]]
+	    .get("medium_thumbnail").asInstanceOf[java.util.HashMap[String, AnyRef]]
+	      .get("location").asInstanceOf[String]
+    }.toOption.map(path => s"${imageBasePath}${path}")
 
     SMGRecord(
       title=data("summary_title").toString,
       uri=s"http://collection.sciencemuseum.org.uk/objects/${uid}",
-      imageUri=None
+      imageUri=imageUri
     )
   }
 }
