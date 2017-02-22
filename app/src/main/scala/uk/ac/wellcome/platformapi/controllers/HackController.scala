@@ -16,11 +16,13 @@ import com.twitter.finatra.validation.NotEmpty
 
 import uk.ac.wellcome.platform.api.models._
 
+case class SearchRequest(
+  @NotEmpty @QueryParam q: String
+)
 
 case class AccessionRequest(
   @NotEmpty @QueryParam accessionId: String
 )
-
 
 case class AccessionRangeRequest(
   @NotEmpty @QueryParam from: String,
@@ -39,6 +41,17 @@ class HackController @Inject()(
 ) extends Controller {
 
   val apiBaseUrl = "/api/hack"
+
+  get(s"${apiBaseUrl}/collection") { request: SearchRequest =>
+    calmService.findCollectionsFreeText(request.q).map { collectionList =>
+      if(collectionList.isEmpty) {
+        response.ok.json(Nil)
+      } else {
+        response.ok.json(collectionList)
+      }
+    }
+  }
+
 
   get(s"${apiBaseUrl}/smg_record/accession") { request: AccessionRequest =>
     calmService.findSMGRecordsByAccessionId(request.accessionId.toInt).map { recordList =>

@@ -26,6 +26,13 @@ class CalmService @Inject()(
     smgRecords <- findSMGRecordByAccessionRange(range.from, range.to)
   } yield smgRecords
 
+  def findCollectionsFreeText(q: String) =
+    elasticsearchService.client.execute {
+      search("hackday3/records").query(
+        simpleStringQuery(q)
+      )
+    }.map { _.hits.map { Collection("foo", _) }.toList }
+
   def findRecordByAccessionId(accessionId: Int) = {
     elasticsearchService.client.execute {
 
