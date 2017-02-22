@@ -17,28 +17,43 @@ class CalmService @Inject()(
   private def parentAltRefNo(altRefNo: String): String =
     altRefNo.take(altRefNo.lastIndexOf("/"))
 
-  def findSMGRecordByAccessionId(accessionId: Int) = {
+  def findSMGRecordsByAccessionId(accessionId: Int): Future[List[SMGRecord]] = for {
+    recordOption <- findRecordByAccessionId(accessionId)
+    if !recordOption.isEmpty
+    record = recordOption.get
+    if !record.accessionRange.isEmpty
+    range = record.accessionRange.get
+    smgRecords <- findSMGRecordByAccessionRange(range.from, range.to)
+  } yield smgRecords
+
+  def findRecordByAccessionId(accessionId: Int) = {
     elasticsearchService.client.execute {
-      search("hackday2/records").query(
-        boolQuery().must(
-          matchQuery("identifier.type", "accession number"),
-          matchQuery("identifier.value", accessionId.toString)
-        )
-      )
-    }.map { _.hits.headOption.map { SMGRecord(_) }}
+
+     val rangeQ = s"""
+       {
+         "range": {
+           "accrange": {
+             "gte": "${accessionId}",
+             "lte": "${accessionId}",
+             "relation": "within"
+           }
+         }
+       }"""
+
+      search("hackday2/records").rawQuery(rangeQ)
+    }.map { _.hits.headOption.map { Record(_) }}
   }
 
-  def findSMGRecordByAccessionRange(gte: Int, lte: Int): Future[List[SMGRecord]] = {
+  def findSMGRecordByAccessionRange(from: Int, to: Int): Future[List[SMGRecord]] = {
     elasticsearchService.client.execute {
+
       search("smg_wellcome/object").query(
         rangeQuery("identifier.value")
-          .gte(gte)
-          .lte(gte)
+          .gte(from)
+          .lte(to)
       )
     }.map { _.hits.map { SMGRecord(_) }.toList }
   }
-
-//  def findRecordsByAccessionId(accessionId: Int): Future[List[SMGRecord]]
 
   def findParentCollectionByAltRefNo(altRefNo: String): Future[Option[Collection]] =
     findCollectionByAltRefNo(parentAltRefNo(altRefNo))

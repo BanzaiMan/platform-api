@@ -21,6 +21,13 @@ case class AccessionRequest(
   @NotEmpty @QueryParam accessionId: String
 )
 
+
+case class AccessionRangeRequest(
+  @NotEmpty @QueryParam from: String,
+  @NotEmpty @QueryParam to: String
+)
+
+
 case class AccessionResponse(
   current: SMGRecord,
   adjacentAccessions: List[SMGRecord]
@@ -33,13 +40,34 @@ class HackController @Inject()(
 
   val apiBaseUrl = "/api/hack"
 
+  get(s"${apiBaseUrl}/smg_record/accession") { request: AccessionRequest =>
+    calmService.findSMGRecordsByAccessionId(request.accessionId.toInt).map { recordList =>
+      if(recordList.isEmpty) {
+        response.notFound
+      } else {
+        response.ok.json(recordList)
+      }
+    }
+  }
+
+  get(s"${apiBaseUrl}/smg_record") { request: AccessionRangeRequest =>
+    calmService.findSMGRecordByAccessionRange(
+      request.from.toInt,
+      request.to.toInt
+    ).map { recordList =>
+      if(recordList.isEmpty) {
+        response.notFound
+      } else {
+        response.ok.json(recordList)
+      }
+    }
+  }
+
   get(s"${apiBaseUrl}/record") { request: AccessionRequest =>
-    calmService.findSMGRecordByAccessionId(request.accessionId.toInt).map { recordOption =>
+    calmService.findRecordByAccessionId(request.accessionId.toInt).map { recordOption =>
      recordOption
         .map(response.ok.json)
 	.getOrElse(response.notFound)
     }
-
-
   }
 }
