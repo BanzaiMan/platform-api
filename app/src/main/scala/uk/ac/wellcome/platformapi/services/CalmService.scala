@@ -28,7 +28,7 @@ class CalmService @Inject()(
 
   def findCollectionsFreeText(q: String) =
     elasticsearchService.client.execute {
-      search("hackday3/records").query(
+      search("hackday4/records").query(
         simpleStringQuery(q)
       )
     }.map { _.hits.map { Collection("foo", _) }.toList }
