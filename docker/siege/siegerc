@@ -1,0 +1,5 @@
+logfile = $(HOME)/siege.log
+
+concurrent = 50
+
+time = 10S
