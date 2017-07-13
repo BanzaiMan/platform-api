@@ -60,3 +60,8 @@ module "ecr_repository_loris" {
   source = "./ecr"
   name   = "loris"
 }
+
+module "ecr_tif_converter" {
+  source = "./ecr"
+  name   = "tif_converter"
+}
