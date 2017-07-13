@@ -33,3 +33,12 @@ module "calm_transformer_queue" {
   topic_names     = ["${module.calm_transformer_topic.name}"]
   alarm_topic_arn = "${module.transformer_dlq_alarm.arn}"
 }
+
+module "tif_conversion_queue" {
+  source          = "./sqs"
+  queue_name      = "tif_conversion_queue"
+  aws_region      = "${var.aws_region}"
+  account_id      = "${data.aws_caller_identity.current.account_id}"
+  topic_names     = ["${module.tif_conversion_topic.name}"]
+  alarm_topic_arn = "${module.tif_conversion_queue_alarm.arn}"
+}

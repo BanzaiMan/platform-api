@@ -38,6 +38,11 @@ module "old_deployments" {
   name   = "old_deployments"
 }
 
+module "tif_conversion_topic" {
+  source = "./sns"
+  name   = "tif_conversions"
+}
+
 # Alarm topics
 
 module "dlq_alarm" {
@@ -68,4 +73,9 @@ module "alb_client_error_alarm" {
 module "lambda_error_alarm" {
   source = "./sns"
   name   = "lambda_error_alarm"
+}
+
+module "tif_conversion_queue_alarm" {
+  source = "./sns"
+  name   = "tif_conversion_queue_alarm"
 }
