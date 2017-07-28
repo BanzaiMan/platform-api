@@ -94,7 +94,7 @@ case class MiroTransformable(MiroID: String,
       // TODO: Work out what title to use for those records.
       //
       val candidateTitle = candidateDescription.split("\n").head
-      val titleIsTruncatedDescription = candidateLabel
+      val titleIsTruncatedDescription = candidateTitle
         .startsWith(miroData.title.get)
 
       val useDescriptionAsTitle = (titleIsTruncatedDescription &&
